@@ -59,7 +59,7 @@ const card = {
 
 export default function Topics() {
   return (
-    <section className="bg-white py-16">
+    <section className="bg-white py-16" id="topics"> 
       <div className="max-w-7xl mx-auto px-6">
         <h2 className="text-3xl font-bold text-center mb-12">
           Topics You’ll Learn

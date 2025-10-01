@@ -2,7 +2,7 @@ import React from "react";
 
 const TutoringForm = () => {
   return (
-    <div className="bg-white py-12 px-4 sm:px-6 lg:px-8">
+    <div className="bg-white py-12 px-4 sm:px-6 lg:px-8" id="form">
       <div className="max-w-7xl mx-auto">
         <h2 className="text-3xl font-bold text-center text-gray-900 mb-2">
           Ready to Start Learning?
@@ -64,11 +64,11 @@ const TutoringForm = () => {
           {/* Contact Info */}
           <div className="bg-orange-100 p-6 rounded-lg shadow-lg col-span-1 lg:col-span-1">
             <h3 className="text-lg font-semibold mb-4">📧 Email Support</h3>
-            <p className="text-sm mb-2">hello@tutor.com</p>
+            <p className="text-sm mb-2">estherwambeo18@gmail.com</p>
             <p className="text-sm text-gray-700 mb-4">I respond within 2 hours during business days</p>
 
             <h3 className="text-lg font-semibold mb-2">💬 Whatsapp Support</h3>
-            <p className="text-sm mb-4">+254 712345678</p>
+            <p className="text-sm mb-4">+254 705977428</p>
 
             <h3 className="text-lg font-semibold mb-2">🕒 Availability</h3>
             <p className="text-sm">

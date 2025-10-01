@@ -61,7 +61,7 @@ const StudentTestimonials = () => {
   };
 
   return (
-    <div className="bg-gradient-to-b from-orange-300 to-orange-100 py-12 px-6">
+    <div className="bg-gradient-to-b from-orange-300 to-orange-100 py-12 px-6" id='testimonials'>
       <h2 className="text-3xl font-semibold text-center mb-10 text-white drop-shadow">
         What My Students are Saying
       </h2>

@@ -60,7 +60,7 @@ const PricingPlans = () => {
   const { ref, inView } = useInView({ triggerOnce: true, threshold: 0.1 });
 
   return (
-    <div className="bg-white py-16 px-6 relative">
+    <div className="bg-white py-16 px-6 relative" id='pricing'>
       <div className="text-center mb-12">
         <h2 className="text-3xl font-bold">Flexible Pricing Plans</h2>
         <p className="text-gray-600 mt-2">

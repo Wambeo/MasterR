@@ -13,6 +13,7 @@ const TutorProfile = () => {
   return (
     <div
       ref={ref}
+      id='about'
       className="flex flex-col lg:flex-row justify-between items-start gap-12 h-auto px-6 lg:px-16 py-16 bg-white"
     >
       {/* Text Section */}
