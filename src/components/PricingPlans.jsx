@@ -1,70 +1,118 @@
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import { useInView } from 'react-intersection-observer';
+import React, { useState } from "react";
+import { motion } from "framer-motion";
+import { useInView } from "react-intersection-observer";
+import emailjs from "emailjs-com";
 
 const plans = [
   {
-    name: 'Starter',
-    subtitle: 'Perfect for beginners getting started with R',
-    price: '$15',
-    per: 'per hour',
+    name: "Starter",
+    subtitle: "Perfect for beginners getting started with R",
+    price: "$15",
+    per: "per hour",
     features: [
-      '1-on-1 tutoring sessions',
-      'Basic R programming',
-      'Data wrangling & cleaning (dplyr, tidyr)',
-      'Introduction to data visualization with ggplot2',
-      'Session recordings',
+      "1-on-1 tutoring sessions",
+      "Basic R programming",
+      "Data wrangling & cleaning (dplyr, tidyr)",
+      "Introduction to data visualization with ggplot2",
+      "Session recordings",
     ],
-    button: 'Book Starter Session',
+    button: "Book Starter Session",
     popular: false,
   },
   {
-    name: 'Professional',
-    subtitle: 'Advanced topics for working professionals',
-    price: '$20',
-    per: 'per hour',
+    name: "Professional",
+    subtitle: "Advanced topics for working professionals",
+    price: "$20",
+    per: "per hour",
     features: [
-      'Everything in Starter',
-      'Statistical modeling & hypothesis testing',
-      'Machine learning with R (classification, regression, clustering)',
-      'Advanced data visualization (dashboards, interactive plots)',
-      'Priority scheduling',
-      'Code review sessions',
-      'Custom project guidance',
-      'Data analysis & report writing (academic, business)',
+      "Everything in Starter",
+      "Statistical modeling & hypothesis testing",
+      "Machine learning with R",
+      "Advanced data visualization",
+      "Priority scheduling",
+      "Code review sessions",
+      "Custom project guidance",
+      "Data analysis & report writing",
     ],
-    button: 'Book Professional Session',
+    button: "Book Professional Session",
     popular: true,
   },
   {
-    name: 'Expert',
-    subtitle: 'Specialized training for complex projects',
-    price: '$30',
-    per: 'per hour',
+    name: "Expert",
+    subtitle: "Specialized training for complex projects",
+    price: "$30",
+    per: "per hour",
     features: [
-      'Everything in Professional',
-      'R Markdown formatting & professional report automation',
-      'Financial modeling',
-      'R Package development',
-      'Research consultation (academic & industry projects)',
-      'Shiny web applications (interactive dashboards)',
-      '24/7 support for ongoing projects',
+      "Everything in Professional",
+      "R Markdown & automation",
+      "Financial modeling",
+      "R Package development",
+      "Research consultation",
+      "Shiny web applications",
+      "24/7 support",
     ],
-    button: 'Book Expert Session',
+    button: "Book Expert Session",
     popular: false,
   },
 ];
 
 const PricingPlans = () => {
   const [selectedPlan, setSelectedPlan] = useState(null);
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [status, setStatus] = useState("idle");
   const { ref, inView } = useInView({ triggerOnce: true, threshold: 0.1 });
 
+  const handleConfirm = () => {
+    if (!name || !email) {
+      setStatus("error");
+      return;
+    }
+
+    setLoading(true);
+    setStatus("idle");
+
+    emailjs
+      .send(
+        "service_hr8by0w", // ✅ replace with your service ID
+        "template_97nq0hn", // ✅ replace with your template ID
+        {
+          user_name: name,
+          user_email: email,
+          plan_name: selectedPlan.name,
+          plan_price: selectedPlan.price,
+          plan_subtitle: selectedPlan.subtitle,
+        },
+        "qz7IN5s8k5vOkm5FN" // ✅ replace with your public key
+      )
+      .then(
+        () => {
+          setLoading(false);
+          setStatus("success");
+        },
+        (error) => {
+          console.error(error);
+          setLoading(false);
+          setStatus("error");
+        }
+      );
+  };
+
+  const resetModal = () => {
+    setSelectedPlan(null);
+    setName("");
+    setEmail("");
+    setLoading(false);
+    setStatus("idle");
+  };
+
   return (
-    <div className="bg-white py-16 px-6 relative" id='pricing'>
+    <div className="bg-white py-16 px-6 relative" id="pricing">
       <div className="text-center mb-12">
         <h2 className="text-3xl font-bold">Flexible Pricing Plans</h2>
         <p className="text-gray-600 mt-2">
-          Choose the plan that best fits your learning goals and schedule. All sessions are conducted one-on-one for maximum effectiveness.
+          Choose the plan that best fits your learning goals. Sessions are 1-on-1 for maximum effectiveness.
         </p>
       </div>
 
@@ -77,7 +125,7 @@ const PricingPlans = () => {
             animate={inView ? { opacity: 1, y: 0 } : {}}
             transition={{ delay: idx * 0.2, duration: 0.6 }}
             className={`border rounded-lg p-6 shadow-sm flex flex-col justify-between relative ${
-              plan.popular ? 'border-orange-400 shadow-md scale-105 z-10' : ''
+              plan.popular ? "border-orange-400 shadow-md scale-105 z-10" : ""
             }`}
           >
             {plan.popular && (
@@ -106,8 +154,8 @@ const PricingPlans = () => {
                 onClick={() => setSelectedPlan(plan)}
                 className={`w-full py-2 px-4 border rounded font-medium transition ${
                   plan.popular
-                    ? 'bg-orange-500 text-white hover:bg-orange-600 border-orange-500'
-                    : 'hover:bg-black hover:text-white border-black'
+                    ? "bg-orange-500 text-white hover:bg-orange-600 border-orange-500"
+                    : "hover:bg-black hover:text-white border-black"
                 }`}
               >
                 {plan.button}
@@ -117,42 +165,77 @@ const PricingPlans = () => {
         ))}
       </div>
 
-      <div className="text-center mt-10 text-sm text-gray-600">
-        <p>All plans include flexible scheduling and satisfaction guarantee</p>
-        <p className="text-gray-500 mt-1">
-          Package deals available for multiple sessions. Contact for custom training.
-        </p>
-      </div>
-
       {/* Modal */}
       {selectedPlan && (
         <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center px-4">
           <div className="bg-white rounded-lg p-6 w-full max-w-md relative shadow-lg">
+            {/* Close button */}
             <button
               className="absolute top-2 right-3 text-gray-500 hover:text-black text-xl"
-              onClick={() => setSelectedPlan(null)}
+              onClick={resetModal}
             >
               ×
             </button>
-            <h3 className="text-xl font-bold mb-2">Book {selectedPlan.name} Session</h3>
-            <p className="text-gray-600 mb-4">{selectedPlan.subtitle}</p>
-            <p className="text-sm text-gray-700 mb-6">
-              Price: <strong>{selectedPlan.price} {selectedPlan.per}</strong>
-            </p>
-            <input
-              type="email"
-              placeholder="Enter your email"
-              className="w-full mb-4 border p-2 rounded focus:outline-none focus:ring-2 focus:ring-orange-400"
-            />
-            <button
-              onClick={() => {
-                alert(`Thank you! We'll contact you for the ${selectedPlan.name} plan.`);
-                setSelectedPlan(null);
-              }}
-              className="w-full bg-black text-white py-2 rounded hover:bg-orange-500 transition"
-            >
-              Confirm Booking
-            </button>
+
+            {/* Success view */}
+            {status === "success" ? (
+              <div className="text-center">
+                <div className="text-green-600 text-3xl mb-2">✅</div>
+                <h4 className="text-lg font-semibold">Booking Confirmed!</h4>
+                <p className="text-gray-600 mt-2 text-sm">
+                  Thank you <strong>{name}</strong>, a confirmation has been sent to{" "}
+                  <strong>{email}</strong>.
+                </p>
+                <button
+                  onClick={resetModal}
+                  className="mt-6 w-full py-2 rounded bg-orange-500 text-white hover:bg-orange-600"
+                >
+                  Close
+                </button>
+              </div>
+            ) : (
+              <>
+                <h3 className="text-xl font-bold mb-2">Book {selectedPlan.name} Session</h3>
+                <p className="text-gray-600 mb-4">{selectedPlan.subtitle}</p>
+                <p className="text-sm text-gray-700 mb-6">
+                  Price: <strong>{selectedPlan.price} {selectedPlan.per}</strong>
+                </p>
+
+                <input
+                  type="text"
+                  placeholder="Enter your name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="w-full mb-3 border p-2 rounded focus:outline-none focus:ring-2 focus:ring-orange-400"
+                />
+
+                <input
+                  type="email"
+                  placeholder="Enter your email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full mb-4 border p-2 rounded focus:outline-none focus:ring-2 focus:ring-orange-400"
+                />
+
+                {status === "error" && (
+                  <p className="text-red-500 text-sm mb-3">
+                    ❌ Please enter your name and a valid email.
+                  </p>
+                )}
+
+                <button
+                  onClick={handleConfirm}
+                  disabled={loading}
+                  className={`w-full py-2 rounded transition ${
+                    loading
+                      ? "bg-gray-400 cursor-not-allowed text-white"
+                      : "bg-black text-white hover:bg-orange-500"
+                  }`}
+                >
+                  {loading ? "Sending..." : "Confirm Booking"}
+                </button>
+              </>
+            )}
           </div>
         </div>
       )}
