@@ -171,7 +171,7 @@ const TutoringForm = () => {
             <h3 className="text-lg font-semibold mb-4">📧 Email Support</h3>
             <p className="text-sm mb-2">estherwambeo18@gmail.com</p>
             <p className="text-sm text-gray-700 mb-4">
-              I respond within 2 hours during business days
+              I respond within 1 hour during business days
             </p>
 
             <h3 className="text-lg font-semibold mb-2">💬 Whatsapp Support</h3>
