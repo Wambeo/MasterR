@@ -86,7 +86,7 @@ export default function Layout() {
           <ul className="space-y-2 text-sm text-gray-600">
             <li>
               <a href="mailto:estherwambeo18.com" className="hover:underline">
-                estherwambeo18@gmail.com
+                tutor@rstatshub.com
               </a>
             </li>
             <li>+254 705977428</li>
