@@ -1,25 +1,30 @@
 import React, { useRef, useState } from "react";
 import emailjs from "emailjs-com";
+import HCaptcha from "@hcaptcha/react-hcaptcha";
 
-// Use Vite-style env vars (or adapt to CRA if needed)
+// Env variables
 const SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID;
 const TEMPLATE_ID = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
 const PUBLIC_KEY = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
 const CONFIRM_TEMPLATE_ID = import.meta.env.VITE_EMAILJS_CONFIRM_TEMPLATE_ID;
-
+const HCAPTCHA_SITE_KEY = import.meta.env.VITE_HCAPTCHA_SITE_KEY;
 
 const Contact = () => {
   const formRef = useRef();
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [captchaToken, setCaptchaToken] = useState(null);
 
   const sendEmail = (e) => {
     e.preventDefault();
     const form = formRef.current;
 
-    emailjs.sendForm(SERVICE_ID, TEMPLATE_ID, formRef.current, PUBLIC_KEY)
-.then(
-      (result) => {
-        // Send confirmation email to user
+    if (!captchaToken) {
+      alert("Please complete the CAPTCHA to verify you're human.");
+      return;
+    }
+
+    emailjs.sendForm(SERVICE_ID, TEMPLATE_ID, formRef.current, PUBLIC_KEY).then(
+      () => {
         emailjs.send(
           SERVICE_ID,
           CONFIRM_TEMPLATE_ID,
@@ -32,8 +37,10 @@ const Contact = () => {
           PUBLIC_KEY
         );
 
-        setShowSuccessModal(true); // Show modal
-        e.target.reset(); // Reset form
+        setShowSuccessModal(true);
+        setCaptchaToken(null); // Reset CAPTCHA token
+        e.target.reset();
+        setTimeout(() => setShowSuccessModal(false), 3000);
       },
       (error) => {
         console.error("Failed to send message:", error.text);
@@ -73,9 +80,7 @@ const Contact = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Booking Form */}
           <div className="bg-orange-100 p-6 rounded-lg shadow-lg col-span-1">
-            <h3 className="text-xl font-semibold text-orange-800 mb-4">
-              Book A Session
-            </h3>
+            <h3 className="text-xl font-semibold text-orange-800 mb-4">Book A Session</h3>
             <form ref={formRef} onSubmit={sendEmail} className="space-y-4">
               <div className="flex gap-4">
                 <input
@@ -128,7 +133,13 @@ const Contact = () => {
                 required
               ></textarea>
 
-              {/* Hidden field to capture current time */}
+              {/* ✅ hCaptcha */}
+              <HCaptcha
+                sitekey={HCAPTCHA_SITE_KEY}
+                onVerify={(token) => setCaptchaToken(token)}
+              />
+
+              {/* Hidden date field */}
               <input
                 type="hidden"
                 name="submitted_at"
