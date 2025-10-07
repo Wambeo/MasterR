@@ -40,7 +40,7 @@ export default function Hero() {
           {/* Stats */}
           <div className="mt-10 grid grid-cols-1 sm:grid-cols-3 gap-6 text-center">
             <div>
-              <p className="text-xl font-bold text-gray-900">500+</p>
+              <p className="text-xl font-bold text-gray-900">220+</p>
               <p className="text-sm text-gray-600">Students Taught</p>
             </div>
             <div>

@@ -5,20 +5,12 @@ import { useInView } from 'react-intersection-observer';
 // Sample testimonials
 const testimonials = [
   {
-    date: 'September 30, 2024',
-    name: 'Marion',
+    date: 'September 2, 2025',
+    name: 'Mathis',
     gender: 'female',
     stars: 5,
     feedback:
-      "Esther is a great teacher, I was a complete beginner in RStudio, and she helped me a lot to master all the commands I need. She's patient and diligent, thank you Esther!",
-  },
-  {
-    date: 'May 13, 2025',
-    name: 'Ana',
-    gender: 'female',
-    stars: 5,
-    feedback:
-      'Esther is an amazing teacher!! She was super patient and helped me understand a topic I have never seen before in Econometrics on my first session, I will subscribe to Esther.',
+      "Esther is a great! She took me on as a student on very short notice and I was able to pass my exam because she explains concepts clearly and patiently. Thank you Esther!",
   },
   {
     date: 'June 12, 2025',
@@ -29,12 +21,20 @@ const testimonials = [
       'Esther is incredibly clear in her explanations. She takes the time to make sure I understand and is always careful with the work. When challenges come up, she looks for solutions and guides me through them.',
   },
   {
-    date: 'September 2, 2025',
-    name: 'Mathis',
-    gender: 'male',
+    date: 'May 13, 2025',
+    name: 'Anna',
+    gender: 'female',
     stars: 5,
     feedback:
-      'Esther was great! She took me on as a student on very short notice and I was able to pass my exam because she explains concepts clearly and patiently. Thank you Esther!',
+      'Esther is an amazing teacher!! She was super patient and helped me understand a topic I have never seen before in Econometrics on my first session, I will subscribe to Esther.',
+  },
+  {
+    date: 'September 30, 2024',
+    name: 'Marion',
+    gender: 'female',
+    stars: 5,
+    feedback:
+       "Esther is a great teacher, I was a complete beginner in RStudio, and she helped me a lot to master all the commands I need. She's patient and diligent, thank you Esther!",
   },
 ];
 
