@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useInView } from "react-intersection-observer";
 import emailjs from "emailjs-com";
+import { Loader2 } from "lucide-react";
 
 const plans = [
   {
@@ -62,10 +63,69 @@ const PricingPlans = () => {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState("idle");
+  const [validationMsg, setValidationMsg] = useState("");
+  const [isEmailValid, setIsEmailValid] = useState(false);
   const { ref, inView } = useInView({ triggerOnce: true, threshold: 0.1 });
 
-  const handleConfirm = () => {
-    if (!name || !email) {
+  // ✅ Pure client-side email validation
+  const validateEmail = (email) => {
+    const trimmed = email.trim().toLowerCase();
+
+    // Empty state
+    if (trimmed === "") {
+      setValidationMsg("");
+      setIsEmailValid(false);
+      return;
+    }
+
+    // Format check
+    const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!regex.test(trimmed)) {
+      setValidationMsg("❌ Invalid email format");
+      setIsEmailValid(false);
+      return;
+    }
+
+    // Common typo detection
+    const commonTypos = {
+      "gamil.com": "gmail.com",
+      "gnail.com": "gmail.com",
+      "hotmial.com": "hotmail.com",
+      "yaho.com": "yahoo.com",
+    };
+    const domain = trimmed.split("@")[1];
+    if (commonTypos[domain]) {
+      setValidationMsg(`⚠️ Did you mean ${trimmed.split("@")[0]}@${commonTypos[domain]}?`);
+      setIsEmailValid(false);
+      return;
+    }
+
+    // Block disposable/fake domains
+    const blockedDomains = [
+      "example.com",
+      "test.com",
+      "mailinator.com",
+      "tempmail.com",
+      "guerrillamail.com",
+    ];
+    if (blockedDomains.some((d) => domain.includes(d))) {
+      setValidationMsg("❌ Disposable or fake email not allowed");
+      setIsEmailValid(false);
+      return;
+    }
+
+    // All checks passed
+    setValidationMsg("✅ Looks like a valid email!");
+    setIsEmailValid(true);
+  };
+
+  useEffect(() => {
+    validateEmail(email);
+  }, [email]);
+
+  // ✅ Booking confirmation
+  const handleConfirm = async () => {
+    if (!name || !email || !isEmailValid) {
       setStatus("error");
       return;
     }
@@ -75,8 +135,8 @@ const PricingPlans = () => {
 
     emailjs
       .send(
-        "service_hr8by0w", // ✅ replace with your service ID
-        "template_97nq0hn", // ✅ replace with your template ID
+        "service_hr8by0w", // your service ID
+        "template_97nq0hn", // your template ID
         {
           user_name: name,
           user_email: email,
@@ -84,12 +144,13 @@ const PricingPlans = () => {
           plan_price: selectedPlan.price,
           plan_subtitle: selectedPlan.subtitle,
         },
-        "qz7IN5s8k5vOkm5FN" // ✅ replace with your public key
+        "qz7IN5s8k5vOkm5FN" // your public key
       )
       .then(
         () => {
           setLoading(false);
           setStatus("success");
+          setValidationMsg("");
         },
         (error) => {
           console.error(error);
@@ -103,8 +164,9 @@ const PricingPlans = () => {
     setSelectedPlan(null);
     setName("");
     setEmail("");
-    setLoading(false);
     setStatus("idle");
+    setValidationMsg("");
+    setIsEmailValid(false);
   };
 
   return (
@@ -116,14 +178,14 @@ const PricingPlans = () => {
         </p>
       </div>
 
-      {/* Plans Grid */}
+      {/* Plans */}
       <div className="grid md:grid-cols-3 gap-6 max-w-7xl mx-auto" ref={ref}>
-        {plans.map((plan, idx) => (
+        {plans.map((plan, i) => (
           <motion.div
-            key={idx}
+            key={i}
             initial={{ opacity: 0, y: 50 }}
             animate={inView ? { opacity: 1, y: 0 } : {}}
-            transition={{ delay: idx * 0.2, duration: 0.6 }}
+            transition={{ delay: i * 0.2, duration: 0.6 }}
             className={`border rounded-lg p-6 shadow-sm flex flex-col justify-between relative ${
               plan.popular ? "border-orange-400 shadow-md scale-105 z-10" : ""
             }`}
@@ -141,10 +203,10 @@ const PricingPlans = () => {
                 <span className="text-gray-600 text-sm ml-1">{plan.per}</span>
               </div>
               <ul className="space-y-2 text-sm text-gray-700">
-                {plan.features.map((feature, i) => (
-                  <li key={i} className="flex items-start gap-2">
+                {plan.features.map((f, j) => (
+                  <li key={j} className="flex items-start gap-2">
                     <span className="text-green-500 mt-1">✓</span>
-                    <span>{feature}</span>
+                    <span>{f}</span>
                   </li>
                 ))}
               </ul>
@@ -165,11 +227,10 @@ const PricingPlans = () => {
         ))}
       </div>
 
-      {/* Modal */}
+      {/* Booking Modal */}
       {selectedPlan && (
         <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center px-4">
           <div className="bg-white rounded-lg p-6 w-full max-w-md relative shadow-lg">
-            {/* Close button */}
             <button
               className="absolute top-2 right-3 text-gray-500 hover:text-black text-xl"
               onClick={resetModal}
@@ -177,13 +238,12 @@ const PricingPlans = () => {
               ×
             </button>
 
-            {/* Success view */}
             {status === "success" ? (
               <div className="text-center">
                 <div className="text-green-600 text-3xl mb-2">✅</div>
                 <h4 className="text-lg font-semibold">Booking Confirmed!</h4>
                 <p className="text-gray-600 mt-2 text-sm">
-                  Thank you <strong>{name}</strong>, a confirmation has been sent to{" "}
+                  Thank you <strong>{name}</strong>, confirmation sent to{" "}
                   <strong>{email}</strong>.
                 </p>
                 <button
@@ -197,42 +257,55 @@ const PricingPlans = () => {
               <>
                 <h3 className="text-xl font-bold mb-2">Book {selectedPlan.name} Session</h3>
                 <p className="text-gray-600 mb-4">{selectedPlan.subtitle}</p>
-                <p className="text-sm text-gray-700 mb-6">
-                  Price: <strong>{selectedPlan.price} {selectedPlan.per}</strong>
-                </p>
 
                 <input
                   type="text"
                   placeholder="Enter your name"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full mb-3 border p-2 rounded focus:outline-none focus:ring-2 focus:ring-orange-400"
+                  className="w-full mb-3 border p-2 rounded focus:ring-2 focus:ring-orange-400"
                 />
 
-                <input
-                  type="email"
-                  placeholder="Enter your email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full mb-4 border p-2 rounded focus:outline-none focus:ring-2 focus:ring-orange-400"
-                />
-
-                {status === "error" && (
-                  <p className="text-red-500 text-sm mb-3">
-                    ❌ Please enter your name and a valid email.
-                  </p>
-                )}
+                {/* Email Input */}
+                <div className="mb-2">
+                  <input
+                    type="email"
+                    placeholder="Enter your email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className={`w-full border p-2 rounded focus:ring-2 ${
+                      isEmailValid
+                        ? "focus:ring-green-400 border-green-400"
+                        : "focus:ring-orange-400 border-gray-300"
+                    }`}
+                  />
+                  {validationMsg && (
+                    <p
+                      className={`text-sm mt-1 ${
+                        validationMsg.startsWith("✅")
+                          ? "text-green-600"
+                          : validationMsg.startsWith("❌")
+                          ? "text-red-500"
+                          : "text-orange-500"
+                      }`}
+                    >
+                      {validationMsg}
+                    </p>
+                  )}
+                </div>
 
                 <button
                   onClick={handleConfirm}
-                  disabled={loading}
+                  disabled={!isEmailValid || loading}
                   className={`w-full py-2 rounded transition ${
                     loading
-                      ? "bg-gray-400 cursor-not-allowed text-white"
+                      ? "bg-gray-400 text-white cursor-not-allowed"
+                      : !isEmailValid
+                      ? "bg-gray-300 text-gray-600 cursor-not-allowed"
                       : "bg-black text-white hover:bg-orange-500"
                   }`}
                 >
-                  {loading ? "Sending..." : "Confirm Booking"}
+                  {loading ? "Processing..." : "Confirm Booking"}
                 </button>
               </>
             )}

@@ -2,7 +2,6 @@ import React, { useRef, useState } from "react";
 import emailjs from "emailjs-com";
 import HCaptcha from "@hcaptcha/react-hcaptcha";
 
-// Env variables
 const SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID;
 const TEMPLATE_ID = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
 const PUBLIC_KEY = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
@@ -13,6 +12,58 @@ const Contact = () => {
   const formRef = useRef();
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [captchaToken, setCaptchaToken] = useState(null);
+  const [emailValid, setEmailValid] = useState(true);
+  const [emailMessage, setEmailMessage] = useState("");
+
+  // ✅ Client-side validation without API
+  const validateEmail = (email) => {
+    const trimmed = email.trim().toLowerCase();
+
+    // Basic syntax check
+    const regex =
+      /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!regex.test(trimmed)) {
+      setEmailValid(false);
+      setEmailMessage("❌ Invalid email format");
+      return false;
+    }
+
+    // Optional: detect common typos
+    const commonTypos = {
+      "gamil.com": "gmail.com",
+      "gnail.com": "gmail.com",
+      "hotmial.com": "hotmail.com",
+      "yaho.com": "yahoo.com",
+    };
+    const domain = trimmed.split("@")[1];
+    if (commonTypos[domain]) {
+      setEmailValid(false);
+      setEmailMessage(
+        `⚠️ Did you mean ${trimmed.split("@")[0]}@${commonTypos[domain]}?`
+      );
+      return false;
+    }
+
+    // Optional: restrict fake/test domains
+    const blockedDomains = [
+      "example.com",
+      "test.com",
+      "fake.com",
+      "mailinator.com",
+      "tempmail.com",
+      "guerrillamail.com",
+    ];
+    if (blockedDomains.some((d) => domain.includes(d))) {
+      setEmailValid(false);
+      setEmailMessage("❌ Disposable or fake email not allowed.");
+      return false;
+    }
+
+    // Passed all checks
+    setEmailValid(true);
+    setEmailMessage("✅ Looks like a valid email!");
+    return true;
+  };
 
   const sendEmail = (e) => {
     e.preventDefault();
@@ -20,6 +71,12 @@ const Contact = () => {
 
     if (!captchaToken) {
       alert("Please complete the CAPTCHA to verify you're human.");
+      return;
+    }
+
+    const email = form.email.value;
+    if (!validateEmail(email)) {
+      alert("Please enter a valid email address before submitting.");
       return;
     }
 
@@ -38,7 +95,7 @@ const Contact = () => {
         );
 
         setShowSuccessModal(true);
-        setCaptchaToken(null); // Reset CAPTCHA token
+        setCaptchaToken(null);
         e.target.reset();
         setTimeout(() => setShowSuccessModal(false), 3000);
       },
@@ -78,7 +135,6 @@ const Contact = () => {
         </p>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Booking Form */}
           <div className="bg-orange-100 p-6 rounded-lg shadow-lg col-span-1">
             <h3 className="text-xl font-semibold text-orange-800 mb-4">Book A Session</h3>
             <form ref={formRef} onSubmit={sendEmail} className="space-y-4">
@@ -98,13 +154,30 @@ const Contact = () => {
                   required
                 />
               </div>
-              <input
-                type="email"
-                name="email"
-                placeholder="Enter your email"
-                className="w-full p-2 border border-gray-300 rounded"
-                required
-              />
+
+              {/* Email Validation */}
+              <div>
+                <input
+                  type="email"
+                  name="email"
+                  placeholder="Enter your email"
+                  className={`w-full p-2 border rounded ${
+                    emailValid ? "border-gray-300" : "border-red-500"
+                  }`}
+                  onBlur={(e) => validateEmail(e.target.value)}
+                  required
+                />
+                {emailMessage && (
+                  <p
+                    className={`text-sm mt-1 ${
+                      emailValid ? "text-green-600" : "text-red-500"
+                    }`}
+                  >
+                    {emailMessage}
+                  </p>
+                )}
+              </div>
+
               <select
                 name="experience_level"
                 className="w-full p-2 border border-gray-300 rounded"
@@ -115,6 +188,7 @@ const Contact = () => {
                 <option>Intermediate</option>
                 <option>Advanced</option>
               </select>
+
               <select
                 name="topic"
                 className="w-full p-2 border border-gray-300 rounded"
@@ -125,6 +199,7 @@ const Contact = () => {
                 <option>Statistics</option>
                 <option>Machine Learning</option>
               </select>
+
               <textarea
                 name="message"
                 placeholder="Tell me about your goals and any specific topics..."
@@ -133,13 +208,11 @@ const Contact = () => {
                 required
               ></textarea>
 
-              {/* ✅ hCaptcha */}
               <HCaptcha
                 sitekey={HCAPTCHA_SITE_KEY}
                 onVerify={(token) => setCaptchaToken(token)}
               />
 
-              {/* Hidden date field */}
               <input
                 type="hidden"
                 name="submitted_at"
@@ -155,7 +228,6 @@ const Contact = () => {
             </form>
           </div>
 
-          {/* Contact Info */}
           <div className="bg-orange-100 p-6 rounded-lg shadow-lg col-span-1">
             <h3 className="text-lg font-semibold mb-4">📧 Email Support</h3>
             <p className="text-sm mb-2">tutor@rstatshub.com</p>
