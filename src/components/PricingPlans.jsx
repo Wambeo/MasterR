@@ -179,7 +179,7 @@ const PricingPlans = () => {
       </div>
 
       {/* Plans */}
-      <div className="grid md:grid-cols-3 gap-6 max-w-7xl mx-auto" ref={ref}>
+      <div className="grid md:grid-cols-1 gap-6 max-w-7xl mx-auto" ref={ref}>
         {plans.map((plan, i) => (
           <motion.div
             key={i}
